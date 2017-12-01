@@ -1,0 +1,15 @@
+{
+  "name": "async-promises",
+  "version": "1.0.0",
+  "description": "Asynchronous requests, focus on comparison between callbacks and promises",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Carlos Lombardi",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "lodash": "^4.17.4",
+    "request": "^2.83.0"
+  }
+}
