@@ -1,0 +1,14 @@
+{
+  "name": "synchro-request",
+  "version": "1.0.0",
+  "description": "Example of synchronous request processing",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "sync-request": "^4.1.0"
+  }
+}
