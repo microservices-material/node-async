@@ -9,7 +9,7 @@
     "type": "git",
     "url": "git+https://github.com/microservices-material/node-async.git"
   },
-  "author": "",
+  "author": "Carlos Lombardi",
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.4"

@@ -1,14 +1,17 @@
 {
-  "name": "synchro-request",
+  "name": "expressExample",
   "version": "1.0.0",
-  "description": "Example of synchronous request processing",
+  "description": "Very basic example of express.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Carlos Lombardi",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.5.1",
+    "config": "^1.28.1",
+    "express": "^4.16.2",
     "lodash": "^4.17.4",
-    "sync-request": "^4.1.0"
+    "request": "^2.83.0"
   }
 }
