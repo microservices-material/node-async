@@ -16,10 +16,10 @@ threeCallsWithPromiseAll()
 
 
 function oneCallWithPromises() {
-  let startTime = new Date().getTime()
+  var startTime = new Date().getTime()
   requestAsPromise( argentinaQuery )
   .then(function(body) {
-    let endTime = new Date().getTime()
+    var endTime = new Date().getTime()
     logCountryData(body)
     console.log("tiempo: " + (endTime - startTime))
   })
@@ -27,10 +27,10 @@ function oneCallWithPromises() {
 
 
 function threeCallsWithPromises() {
-	let startTime = new Date().getTime()
-  let argentinaData = null
-  let brasilData = null
-  let paraguayData = null
+	var startTime = new Date().getTime()
+  var argentinaData = null
+  var brasilData = null
+  var paraguayData = null
 
   requestAsPromise( argentinaQuery )
   .then(function(body) {
@@ -43,7 +43,7 @@ function threeCallsWithPromises() {
   })
   .then(function(body) {
     paraguayData = body
-		let endTime = new Date().getTime()
+		var endTime = new Date().getTime()
     console.log('')
     console.log('Using sequential promises')
     console.log('-------------------------')
@@ -53,7 +53,7 @@ function threeCallsWithPromises() {
     console.log("tiempo: " + (endTime - startTime))
   })
   .catch(function(someError) {
-    let endTime = new Date().getTime()
+    var endTime = new Date().getTime()
     console.log(someError)
     console.log("tiempo: " + (endTime - startTime))
   })
@@ -61,10 +61,10 @@ function threeCallsWithPromises() {
 
 
 function threeCallsWithPromiseAll() {
-	let startTime = new Date().getTime()
-  let argentinaData = null
-  let brasilData = null
-  let paraguayData = null
+	var startTime = new Date().getTime()
+  var argentinaData = null
+  var brasilData = null
+  var paraguayData = null
 
   Promise.all([
     requestAsPromise( argentinaQuery ), 
@@ -73,7 +73,7 @@ function threeCallsWithPromiseAll() {
     requestAsPromise( paraguayQuery )
   ])
   .spread(function(argentinaData, brasilData, mysteriousData, paraguayData) {
-		let endTime = new Date().getTime()
+		var endTime = new Date().getTime()
     console.log('')
     console.log('Using promise.all')
     console.log('-----------------')
@@ -83,7 +83,7 @@ function threeCallsWithPromiseAll() {
     console.log("tiempo: " + (endTime - startTime))
   })
   .catch(function(someError) {
-    let endTime = new Date().getTime()
+    var endTime = new Date().getTime()
     console.log(someError)
     console.log("tiempo: " + (endTime - startTime))
   })
@@ -116,11 +116,11 @@ function buildUri(countryCode) {
 
 
 function logCountryData(countryData) {
-  let countryName = null
-  let population = null
-  let currencyCode = null
-  let cantidadDeLimites = null
-  let prefijo = null
+  var countryName = null
+  var population = null
+  var currencyCode = null
+  var cantidadDeLimites = null
+  var prefijo = null
   if (countryData) {  
     countryName = countryData.translations.es
     population = countryData.population

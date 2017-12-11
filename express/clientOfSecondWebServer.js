@@ -8,7 +8,7 @@ const webServerURL = "https://node-async-clombardi.c9users.io"
 const c9port = 8081
 
 
-let fullUrl = webServerURL + ":" + c9port.toString() + '/sayHiTo/Pepe'
+var fullUrl = webServerURL + ":" + c9port.toString() + '/sayHiTo/Pepe'
 requestAsPromise(fullUrl)
 .then(function(body) {
 	console.log(body.message)

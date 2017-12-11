@@ -25,7 +25,7 @@ function justOneCall() {
 }
 
 function justOneCall_assigned_callback() {
-  let argentinaCallback = function(theError, response, body) {
+  var argentinaCallback = function(theError, response, body) {
       logCountryData(body)
   };
   request.get({ url: argentinaQuery, json: true }, argentinaCallback)    
@@ -39,9 +39,9 @@ function lookMessageOrder() {
 
 
 function threeCalls_naive() {
-  let argentinaData = null
-  let brasilData = null
-  let paraguayData = null
+  var argentinaData = null
+  var brasilData = null
+  var paraguayData = null
   request.get({ url: argentinaQuery, json: true },  
     function(theError, response, body) {
       argentinaData = body
@@ -61,9 +61,9 @@ function threeCalls_naive() {
 
 
 function threeCalls_callbacks() {
-  let argentinaData = null
-  let brasilData = null
-  let paraguayData = null
+  var argentinaData = null
+  var brasilData = null
+  var paraguayData = null
   
   request.get({ url: argentinaQuery, json: true },  
     function(theError, response, body) {
@@ -85,9 +85,9 @@ function threeCalls_callbacks() {
 }
 
 function threeCalls_uncontrolled() {
-  let argentinaData = null
-  let brasilData = null
-  let paraguayData = null
+  var argentinaData = null
+  var brasilData = null
+  var paraguayData = null
   request.get({ url: argentinaQuery, json: true },  
     function(theError, response, body) {
       argentinaData = body
@@ -107,9 +107,9 @@ function threeCalls_uncontrolled() {
 
 
 function threeCalls_callbacks_errors() {
-  let argentinaData = null
-  let brasilData = null
-  let paraguayData = null
+  var argentinaData = null
+  var brasilData = null
+  var paraguayData = null
   request.get(
   	{ url: argentinaQuery, json: true },  
     function(theError, response, body) {
@@ -144,7 +144,7 @@ function threeCalls_callbacks_errors() {
 
 
 function threeCalls_parallel() {
-  let countryDataFunction = function(query, callback) {
+  var countryDataFunction = function(query, callback) {
     request.get({ url: query, json: true },  
       function(theError, response, body) {
         callback(theError, body)
@@ -155,9 +155,9 @@ function threeCalls_parallel() {
     [argentinaQuery, brasilQuery, paraguayQuery], 
     countryDataFunction, 
     function(err, result) {
-      let argentinaData = result[0]
-      let brasilData = result[1];
-      let paraguayData = result[2];
+      var argentinaData = result[0]
+      var brasilData = result[1];
+      var paraguayData = result[2];
       logCountryData(argentinaData)
       logCountryData(brasilData)
       logCountryData(paraguayData)
@@ -167,9 +167,9 @@ function threeCalls_parallel() {
 
 
 function threeCalls_callbacks_with_wait() {
-  let argentinaData = null
-  let brasilData = null
-  let paraguayData = null
+  var argentinaData = null
+  var brasilData = null
+  var paraguayData = null
   request.get(
     { url: argentinaQuery, json: true },  
     function(theError, response, body) {
@@ -195,14 +195,14 @@ function threeCalls_callbacks_with_wait() {
 
 
 function wait(ms) {
-	let waitTill = new Date(new Date().getTime() + ms);
+	var waitTill = new Date(new Date().getTime() + ms);
 	while(waitTill > new Date()){}
 }
 
 
 
 function threeCalls_callbacks_external_fns() {
-  let argentinaData = null
+  var argentinaData = null
   request.get(
   	{ url: argentinaQuery, json: true },  
     function(theError, response, body) {
@@ -240,11 +240,11 @@ function buildUri(countryCode) {
 
 
 function logCountryData(countryData) {
-  let countryName = null
-  let population = null
-  let currencyCode = null
-  let cantidadDeLimites = null
-  let prefijo = null
+  var countryName = null
+  var population = null
+  var currencyCode = null
+  var cantidadDeLimites = null
+  var prefijo = null
   if (countryData) {  
     countryName = countryData.translations.es
     population = countryData.population

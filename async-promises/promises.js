@@ -24,7 +24,7 @@ function oneCallWithPromises() {
 }
 
 function oneCallWithPromises_explicit() {
-  let promise = requestAsPromise( argentinaQuery )
+  var promise = requestAsPromise( argentinaQuery )
   promise.then(function(body) {
     logCountryData(body)
   })
@@ -32,9 +32,9 @@ function oneCallWithPromises_explicit() {
 
 
 function threeCallsWithPromises() {
-  let argentinaData = null
-  let brasilData = null
-  let paraguayData = null
+  var argentinaData = null
+  var brasilData = null
+  var paraguayData = null
 
   requestAsPromise( argentinaQuery )
   .then(function(body) {
@@ -58,9 +58,9 @@ function threeCallsWithPromises() {
 
 
 function threeCallsWithPromiseAll() {
-  let argentinaData = null
-  let brasilData = null
-  let paraguayData = null
+  var argentinaData = null
+  var brasilData = null
+  var paraguayData = null
 
   Promise.all([
     requestAsPromise( argentinaQuery ), 
@@ -101,11 +101,11 @@ function buildUri(countryCode) {
 
 
 function logCountryData(countryData) {
-  let countryName = null
-  let population = null
-  let currencyCode = null
-  let cantidadDeLimites = null
-  let prefijo = null
+  var countryName = null
+  var population = null
+  var currencyCode = null
+  var cantidadDeLimites = null
+  var prefijo = null
   if (countryData) {  
     countryName = countryData.translations.es
     population = countryData.population
