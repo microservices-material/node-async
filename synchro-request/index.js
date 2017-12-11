@@ -4,17 +4,17 @@
 const _ = require('lodash');
 const request = require('sync-request')
 
-const buenosAiresId = '7894'
-const rosarioId = '11222'
-const saltaId = '10531'
+var argentinaQuery = buildUri('ARG')
+var brasilQuery = buildUri('BRA')
+var paraguayQuery = buildUri('PRY')
 
 // rawCall()
-// oneCall()
-threeCalls()
+oneCall()
+// threeCalls()
 
 
 function rawCall() {
-  const uri = 'http://apidev.accuweather.com/currentconditions/v1/7894.json?language=en&apikey=hoArfRosT1215'
+  const uri = 'https://restcountries.eu/rest/v2/alpha/ARG'
   const response = request('GET', uri)
   console.log(response.body.toString())
 }
@@ -25,22 +25,35 @@ function jsonBody_get_sync(uri) {
 }
 
 function oneCall() {
-	const uri = 'http://apidev.accuweather.com/currentconditions/v1/' + buenosAiresId + '.json?language=en&apikey=hoArfRosT1215'
+	const uri = 'https://restcountries.eu/rest/v2/alpha/ARG'
   let jsonBody = jsonBody_get_sync(uri)
-  console.log('respuesta del servidor accuweather: ' + JSON.stringify(jsonBody,null,'  '))
-  console.log('Temperatura en Buenos Aires: ' + jsonBody[0].Temperature.Metric.Value)
+  console.log('respuesta del servidor restcountries.eu: ' + JSON.stringify(jsonBody,null,'  '))
+  logCountryData(jsonBody)
 }
 
 function threeCalls() {
-  let bsAsData = jsonBody_get_sync(buildUri(buenosAiresId))
-  let rosarioData = jsonBody_get_sync(buildUri(rosarioId))
-  let saltaData = jsonBody_get_sync(buildUri(saltaId))
-  console.log('Temperatura en Buenos Aires: ' + bsAsData[0].Temperature.Metric.Value)
-  console.log('Temperatura en Rosario: ' + rosarioData[0].Temperature.Metric.Value)
-  console.log('Temperatura en Salta: ' + saltaData[0].Temperature.Metric.Value)
+  let argentinaData = jsonBody_get_sync(argentinaQuery)
+  let brasilData = jsonBody_get_sync(brasilQuery)
+  let paraguayData = jsonBody_get_sync(paraguayQuery)
+  logCountryData(argentinaData)
+  logCountryData(brasilData)
+  logCountryData(paraguayData)
 }
 
-function buildUri(cityId) {
-  return 'http://apidev.accuweather.com/currentconditions/v1/' + cityId + '.json?language=en&apikey=hoArfRosT1215'
+function buildUri(countryCode) {
+  return 'https://restcountries.eu/rest/v2/alpha/' + countryCode
+}
+
+function logCountryData(countryData) {
+  let countryName = countryData.translations.es
+  let population = countryData.population
+  let currencyCode = countryData.currencies[0].code
+  let limites = countryData.borders
+  let prefijo = countryData.callingCodes[0]
+  console.log('Datos de ' + countryName)
+  console.log('    Población: ' + population + 
+    '  - código de la moneda: ' + currencyCode + '  - prefijo telefónico: ' + prefijo + 
+    '  - limita con ' + limites.length + ' países')
+  console.log('')
 }
 

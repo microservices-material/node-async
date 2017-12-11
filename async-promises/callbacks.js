@@ -3,22 +3,32 @@
 // include libraries
 const _ = require('lodash');
 const request = require('request')
+const async = require('async')
 const Promise = require("bluebird")
 
-var bsAsWeather = accUri(7894)
-var rawsonWeather = accUri(3092)
-var posadasWeather = accUri(5168)
-var saltaWeather = accUri(10531)
+var argentinaQuery = buildUri('ARG')
+var brasilQuery = buildUri('BRA')
+var paraguayQuery = buildUri('PRY')
+var boliviaQuery = buildUri('BOL')
+var mysteriousQuery = buildUri('JPQ')
 
 
-lookMessageOrder()
+threeCalls_parallel()
 
 
 function justOneCall() {
-  request.get({ url: bsAsWeather, json: true },  
+  request.get({ url: argentinaQuery, json: true },  
     function(theError, response, body) {
-      console.log('Temperatura en Buenos Aires: ' + body[0].Temperature.Metric.Value)
+      console.log('respuesta del servidor restcountries.eu: ' + JSON.stringify(body,null,'  '))
+      logCountryData(body)
     })
+}
+
+function justOneCall_assigned_callback() {
+  let argentinaCallback = function(theError, response, body) {
+      logCountryData(body)
+  };
+  request.get({ url: argentinaQuery, json: true }, argentinaCallback)    
 }
 
 
@@ -29,115 +39,156 @@ function lookMessageOrder() {
 
 
 function threeCalls_naive() {
-  let temperaturaEnBuenosAires = 0
-  let temperaturaEnRawson = 0
-  let temperaturaEnPosadas = 0
-  request.get({ url: bsAsWeather, json: true },  
+  let argentinaData = null
+  let brasilData = null
+  let paraguayData = null
+  request.get({ url: argentinaQuery, json: true },  
     function(theError, response, body) {
-      temperaturaEnBuenosAires = body[0].Temperature.Metric.Value
+      argentinaData = body
     })
-  request.get({ url: rawsonWeather, json: true },  
+  request.get({ url: brasilQuery, json: true },  
     function(theError, response, body) {
-      temperaturaEnRawson = body[0].Temperature.Metric.Value
+      brasilData = body
     })
-  request.get({ url: posadasWeather, json: true },  
+  request.get({ url: paraguayQuery, json: true },  
     function(theError, response, body) {
-      temperaturaEnPosadas = body[0].Temperature.Metric.Value
+      paraguayData = body
     })
-  console.log("Temperaturas")
-  console.log("   Buenos Aires: " + temperaturaEnBuenosAires)
-  console.log("   Rawson: " + temperaturaEnRawson)
-  console.log("   Posadas: " + temperaturaEnPosadas)
+  logCountryData(argentinaData)
+  logCountryData(brasilData)
+  logCountryData(paraguayData)
 }
 
 
 function threeCalls_callbacks() {
-  let temperaturaEnBuenosAires = 0
-  let temperaturaEnRawson = 0
-  let temperaturaEnPosadas = 0
-  request.get(
-  	{ url: bsAsWeather, json: true },  
+  let argentinaData = null
+  let brasilData = null
+  let paraguayData = null
+  
+  request.get({ url: argentinaQuery, json: true },  
     function(theError, response, body) {
-      temperaturaEnBuenosAires = body[0].Temperature.Metric.Value
+      argentinaData = body
       request.get(
-      	{ url: rawsonWeather, json: true },  
+      	{ url: brasilQuery, json: true },  
         function(theError, response, body) {
-          temperaturaEnRawson = body[0].Temperature.Metric.Value
+          brasilData = body
           request.get(
-          	{ url: posadasWeather, json: true },  
+          	{ url: paraguayQuery, json: true },  
             function(theError, response, body) {
-              temperaturaEnPosadas = body[0].Temperature.Metric.Value
-              console.log("Temperaturas")
-              console.log("   Buenos Aires: " + temperaturaEnBuenosAires)
-              console.log("   Rawson: " + temperaturaEnRawson)
-              console.log("   Posadas: " + temperaturaEnPosadas)
+              paraguayData = body
+              logCountryData(argentinaData)
+              logCountryData(brasilData)
+              logCountryData(paraguayData)
             })
         })
+    })
+}
+
+function threeCalls_uncontrolled() {
+  let argentinaData = null
+  let brasilData = null
+  let paraguayData = null
+  request.get({ url: argentinaQuery, json: true },  
+    function(theError, response, body) {
+      argentinaData = body
+      logCountryData(argentinaData)
+    })
+  request.get({ url: brasilQuery, json: true },  
+    function(theError, response, body) {
+      brasilData = body
+      logCountryData(brasilData)
+    })
+  request.get({ url: paraguayQuery, json: true },  
+    function(theError, response, body) {
+      paraguayData = body
+      logCountryData(paraguayData)
     })
 }
 
 
 function threeCalls_callbacks_errors() {
-  let temperaturaEnBuenosAires = 0
-  let temperaturaEnRawson = 0
-  let temperaturaEnPosadas = 0
-    request.get(
-    	{ url: bsAsWeather, json: true },  
-	    function(theError, response, body) {
-	    	if (theError || response.statusCode != 200) {
-	    		console.log('Buenos Aires we have a problem')
-	    	} else {
-		      temperaturaEnBuenosAires = body[0].Temperature.Metric.Value
-	        request.get(
-	        	{ url: rawsonWeather, json: true },  
-		        function(theError, response, body) {
-				    	if (theError || response.statusCode != 200) {
-				    		console.log('Rawson we have a problem')
-				    	} else {
-			          temperaturaEnRawson = body[0].Temperature.Metric.Value
-			          request.get(
-			          	{ url: posadasWeather, json: true },  
-			            function(theError, response, body) {
-							    	if (theError || response.statusCode != 200) {
-							    		console.log('Posadas we have a problem')
-							    	} else {
-				              temperaturaEnPosadas = body[0].Temperature.Metric.Value
-				              console.log("Temperaturas")
-				              console.log("   Buenos Aires: " + temperaturaEnBuenosAires)
-				              console.log("   Rawson: " + temperaturaEnRawson)
-				              console.log("   Posadas: " + temperaturaEnPosadas)
-				            }
-			            })
-			        }
-		        })
-	      }
-	    })
+  let argentinaData = null
+  let brasilData = null
+  let paraguayData = null
+  request.get(
+  	{ url: argentinaQuery, json: true },  
+    function(theError, response, body) {
+    	if (theError || response.statusCode != 200) {
+    		console.log('Argentina we have a problem')
+    	} else {
+	      argentinaData = body
+        request.get(
+        	{ url: brasilQuery, json: true },  
+	        function(theError, response, body) {
+			    	if (theError || response.statusCode != 200) {
+			    		console.log('Brasil we have a problem')
+			    	} else {
+		          brasilData = body
+		          request.get(
+		          	{ url: paraguayQuery, json: true },  
+		            function(theError, response, body) {
+						    	if (theError || response.statusCode != 200) {
+						    		console.log('Paraguay we have a problem')
+						    	} else {
+			              paraguayData = body
+                    logCountryData(argentinaData)
+                    logCountryData(brasilData)
+                    logCountryData(paraguayData)
+			            }
+		            })
+		        }
+	        })
+      }
+    })
 }
 
 
-function threeCalls_callbacks_2() {
-  let temperaturaEnBuenosAires = 0
-  let temperaturaEnRawson = 0
-  let temperaturaEnPosadas = 0
-    request.get(
-    	{ url: bsAsWeather, json: true },  
+function threeCalls_parallel() {
+  let countryDataFunction = function(query, callback) {
+    request.get({ url: query, json: true },  
+      function(theError, response, body) {
+        callback(theError, body)
+      })
+  }
+
+  async.map(
+    [argentinaQuery, brasilQuery, paraguayQuery], 
+    countryDataFunction, 
+    function(err, result) {
+      let argentinaData = result[0]
+      let brasilData = result[1];
+      let paraguayData = result[2];
+      logCountryData(argentinaData)
+      logCountryData(brasilData)
+      logCountryData(paraguayData)
+    }
+  )
+}
+
+
+function threeCalls_callbacks_with_wait() {
+  let argentinaData = null
+  let brasilData = null
+  let paraguayData = null
+  request.get(
+    { url: argentinaQuery, json: true },  
     function(theError, response, body) {
-      temperaturaEnBuenosAires = body[0].Temperature.Metric.Value
+      argentinaData = body
         request.get(
-        	{ url: rawsonWeather, json: true },  
-        function(theError, response, body) {
-          temperaturaEnRawson = body[0].Temperature.Metric.Value
-          request.get(
-          	{ url: posadasWeather, json: true },  
-            function(theError, response, body) {
-              temperaturaEnPosadas = body[0].Temperature.Metric.Value
-              console.log("Temperatura en Posadas: " + temperaturaEnPosadas)
-				      wait(500)
-            })
-          console.log("Temperatura en Rawson: " + temperaturaEnRawson)
-		      wait(500)
-        })
-      console.log("Temperatura en Buenos Aires: " + temperaturaEnBuenosAires)
+        	{ url: brasilQuery, json: true },  
+          function(theError, response, body) {
+            brasilData = body
+            request.get(
+            	{ url: paraguayQuery, json: true },  
+              function(theError, response, body) {
+                paraguayData = body
+                logCountryData(paraguayData)
+    			      wait(500)
+              })
+            logCountryData(brasilData)
+    	      wait(500)
+          })
+      logCountryData(argentinaData)
       wait(500)
     })
 }
@@ -148,50 +199,65 @@ function wait(ms) {
 	while(waitTill > new Date()){}
 }
 
-function accUri(cityNumber) {
-	return 'http://apidev.accuweather.com/currentconditions/v1/' + cityNumber + '.json?language=en&apikey=hoArfRosT1215'
-}
-
-
-
 
 
 function threeCalls_callbacks_external_fns() {
-  let temperaturaEnBuenosAires = 0
-  let temperaturaEnRawson = 0
-  let temperaturaEnPosadas = 0
+  let argentinaData = null
   request.get(
-  	{ url: bsAsWeather, json: true },  
+  	{ url: argentinaQuery, json: true },  
     function(theError, response, body) {
-      temperaturaEnBuenosAires = body[0].Temperature.Metric.Value
-      getRawsonAndPosadas(temperaturaEnBuenosAires)
+      argentinaData = body
+      getBrasilAndParaguay(argentinaData)
     })
 }
 
 
-function getRawsonAndPosadas(tempBsAs) {
+function getBrasilAndParaguay(argData) {
   request.get(
-		{ url: rawsonWeather, json: true },  
+		{ url: brasilQuery, json: true },  
 	  function(theError, response, body) {
-	    temperaturaEnRawson = body[0].Temperature.Metric.Value
-	    getPosadas(tempBsAs, temperaturaEnRawson) 
+	    brasilData = body
+      getParaguay(argData, brasilData)
 	  })
 }
 
 
-function getPosadas(tempBsAs, tempRawson) {
+function getParaguay(argData, braData) {
 	request.get(
-		{ url: posadasWeather, json: true },  
+		{ url: paraguayQuery, json: true },  
 	  function(theError, response, body) {
-	    temperaturaEnPosadas = body[0].Temperature.Metric.Value
-	    console.log("Temperaturas")
-	    console.log("   Buenos Aires: " + tempBsAs)
-	    console.log("   Rawson: " + tempRawson)
-	    console.log("   Posadas: " + temperaturaEnPosadas)
+	    paraguayData = body
+      logCountryData(argData)
+      logCountryData(braData)
+      logCountryData(paraguayData)
 	  })
 } 
 
 
+function buildUri(countryCode) {
+  return 'https://restcountries.eu/rest/v2/alpha/' + countryCode
+}
+
+
+function logCountryData(countryData) {
+  let countryName = null
+  let population = null
+  let currencyCode = null
+  let cantidadDeLimites = null
+  let prefijo = null
+  if (countryData) {  
+    countryName = countryData.translations.es
+    population = countryData.population
+    currencyCode = countryData.currencies[0].code
+    cantidadDeLimites = countryData.borders.length
+    prefijo = countryData.callingCodes[0]
+  }
+  console.log('Datos de ' + countryName)
+  console.log('    Población: ' + population + 
+    '  - código de la moneda: ' + currencyCode + '  - prefijo telefónico: ' + prefijo + 
+    '  - limita con ' + cantidadDeLimites + ' países')
+  console.log('')
+}
 
 
 

@@ -5,44 +5,51 @@ const _ = require('lodash');
 const request = require('request')
 const Promise = require("bluebird")
 
-var bsAsWeather = accUri(7894)
-var rawsonWeather = accUri(3092)
-var posadasWeather = accUri(5168)
-var saltaWeather = accUri(10531)
-var nonExistentWeather = accUri(105310000)
+var argentinaQuery = buildUri('ARG')
+var brasilQuery = buildUri('BRA')
+var paraguayQuery = buildUri('PRY')
+var boliviaQuery = buildUri('BOL')
+var mysteriousQuery = buildUri('JPQ')
+var failQuery = buildUri('FAI')
 
 
 threeCallsWithPromises()
 
 
 function oneCallWithPromises() {
-  requestAsPromise( bsAsWeather )
+  requestAsPromise( argentinaQuery )
   .then(function(body) {
-    console.log('Temperatura en Buenos Aires: ' + body[0].Temperature.Metric.Value)
+    logCountryData(body)
+  })
+}
+
+function oneCallWithPromises_explicit() {
+  let promise = requestAsPromise( argentinaQuery )
+  promise.then(function(body) {
+    logCountryData(body)
   })
 }
 
 
 function threeCallsWithPromises() {
-  let temperaturaEnBuenosAires = 0
-  let temperaturaEnRawson = 0
-  let temperaturaEnPosadas = 0
+  let argentinaData = null
+  let brasilData = null
+  let paraguayData = null
 
-  requestAsPromise( bsAsWeather )
+  requestAsPromise( argentinaQuery )
   .then(function(body) {
-    temperaturaEnBuenosAires = body[0].Temperature.Metric.Value
-    return requestAsPromise( rawsonWeather )
+    argentinaData = body
+    return requestAsPromise( brasilQuery )
   })
   .then(function(body) {
-    temperaturaEnRawson = body[0].Temperature.Metric.Value
-    return requestAsPromise( posadasWeather )
+    brasilData = body
+    return requestAsPromise( paraguayQuery )
   })
   .then(function(body) {
-    temperaturaEnPosadas = body[0].Temperature.Metric.Value
-    console.log("Temperaturas")
-    console.log("   Buenos Aires: " + temperaturaEnBuenosAires)
-    console.log("   Rawson: " + temperaturaEnRawson)
-    console.log("   Posadas: " + temperaturaEnPosadas)
+    paraguayData = body
+    logCountryData(argentinaData)
+    logCountryData(brasilData)
+    logCountryData(paraguayData)
   })
   .catch(function(someError) {
     console.log(someError)
@@ -51,23 +58,19 @@ function threeCallsWithPromises() {
 
 
 function threeCallsWithPromiseAll() {
-  let temperaturaEnBuenosAires = 0
-  let temperaturaEnRawson = 0
-  let temperaturaEnPosadas = 0
+  let argentinaData = null
+  let brasilData = null
+  let paraguayData = null
 
   Promise.all([
-    requestAsPromise( bsAsWeather ), 
-    requestAsPromise( rawsonWeather ),
-    requestAsPromise( posadasWeather )
+    requestAsPromise( argentinaQuery ), 
+    requestAsPromise( brasilQuery ),
+    requestAsPromise( paraguayQuery )
   ])
-  .spread(function(bodyBsAs, bodyRawson, bodyPosadas) {
-    temperaturaEnBuenosAires = bodyBsAs[0].Temperature.Metric.Value
-    temperaturaEnRawson = bodyRawson[0].Temperature.Metric.Value
-    temperaturaEnPosadas = bodyPosadas[0].Temperature.Metric.Value
-    console.log("Temperaturas")
-    console.log("   Buenos Aires: " + temperaturaEnBuenosAires)
-    console.log("   Rawson: " + temperaturaEnRawson)
-    console.log("   Posadas: " + temperaturaEnPosadas)
+  .spread(function(argentinaData, brasilData, paraguayData) {
+    logCountryData(argentinaData)
+    logCountryData(brasilData)
+    logCountryData(paraguayData)
   })
   .catch(function(someError) {
     console.log(someError)
@@ -92,7 +95,28 @@ function requestAsPromise(theUri) {
 }
 
 
-function accUri(cityNumber) {
-	return 'http://apidev.accuweather.com/currentconditions/v1/' + cityNumber + '.json?language=en&apikey=hoArfRosT1215'
+function buildUri(countryCode) {
+  return 'https://restcountries.eu/rest/v2/alpha/' + countryCode
+}
+
+
+function logCountryData(countryData) {
+  let countryName = null
+  let population = null
+  let currencyCode = null
+  let cantidadDeLimites = null
+  let prefijo = null
+  if (countryData) {  
+    countryName = countryData.translations.es
+    population = countryData.population
+    currencyCode = countryData.currencies[0].code
+    cantidadDeLimites = countryData.borders.length
+    prefijo = countryData.callingCodes[0]
+  }
+  console.log('Datos de ' + countryName)
+  console.log('    Población: ' + population + 
+    '  - código de la moneda: ' + currencyCode + '  - prefijo telefónico: ' + prefijo + 
+    '  - limita con ' + cantidadDeLimites + ' países')
+  console.log('')
 }
 

@@ -5,22 +5,22 @@ const _ = require('lodash');
 const request = require('request')
 const Promise = require("bluebird")
 
-var bsAsWeather = accUri(7894)
-var rawsonWeather = accUri(3092)
-var posadasWeather = accUri(5168)
-var saltaWeather = accUri(10531)
-var nonExistentWeather = accUri(105310000)
+var argentinaQuery = buildUri('ARG')
+var brasilQuery = buildUri('BRA')
+var paraguayQuery = buildUri('PRY')
+var boliviaQuery = buildUri('BOL')
+var mysteriousQuery = buildUri('JPQ')
 
 
-threeCallsWithPromises()
+threeCallsWithPromiseAll()
 
 
 function oneCallWithPromises() {
   let startTime = new Date().getTime()
-  requestAsPromise( bsAsWeather )
+  requestAsPromise( argentinaQuery )
   .then(function(body) {
     let endTime = new Date().getTime()
-    console.log('Temperatura en Buenos Aires: ' + body[0].Temperature.Metric.Value)
+    logCountryData(body)
     console.log("tiempo: " + (endTime - startTime))
   })
 }
@@ -28,26 +28,28 @@ function oneCallWithPromises() {
 
 function threeCallsWithPromises() {
 	let startTime = new Date().getTime()
-  let temperaturaEnBuenosAires = 0
-  let temperaturaEnRawson = 0
-  let temperaturaEnPosadas = 0
+  let argentinaData = null
+  let brasilData = null
+  let paraguayData = null
 
-  requestAsPromise( bsAsWeather )
+  requestAsPromise( argentinaQuery )
   .then(function(body) {
-    temperaturaEnBuenosAires = body[0].Temperature.Metric.Value
-    return requestAsPromise( rawsonWeather )
+    argentinaData = body
+    return requestAsPromise( brasilQuery )
   })
   .then(function(body) {
-    temperaturaEnRawson = body[0].Temperature.Metric.Value
-    return requestAsPromise( posadasWeather )
+    brasilData = body
+    return requestAsPromise( paraguayQuery )
   })
   .then(function(body) {
-    temperaturaEnPosadas = body[0].Temperature.Metric.Value
+    paraguayData = body
 		let endTime = new Date().getTime()
-    console.log("Temperaturas")
-    console.log("   Buenos Aires: " + temperaturaEnBuenosAires)
-    console.log("   Rawson: " + temperaturaEnRawson)
-    console.log("   Posadas: " + temperaturaEnPosadas)
+    console.log('')
+    console.log('Using sequential promises')
+    console.log('-------------------------')
+    logCountryData(argentinaData)
+    logCountryData(brasilData)
+    logCountryData(paraguayData)
     console.log("tiempo: " + (endTime - startTime))
   })
   .catch(function(someError) {
@@ -60,25 +62,24 @@ function threeCallsWithPromises() {
 
 function threeCallsWithPromiseAll() {
 	let startTime = new Date().getTime()
-  let temperaturaEnBuenosAires = 0
-  let temperaturaEnRawson = 0
-  let temperaturaEnPosadas = 0
+  let argentinaData = null
+  let brasilData = null
+  let paraguayData = null
 
   Promise.all([
-    requestAsPromise( bsAsWeather ), 
-    requestAsPromise( rawsonWeather ),
-    requestAsPromise( nonExistentWeather ),
-    requestAsPromise( posadasWeather )
+    requestAsPromise( argentinaQuery ), 
+    requestAsPromise( brasilQuery ),
+    requestAsPromise( mysteriousQuery ),
+    requestAsPromise( paraguayQuery )
   ])
-  .spread(function(bodyBsAs, bodyRawson, bodyNonExistent, bodyPosadas) {
-    temperaturaEnBuenosAires = bodyBsAs[0].Temperature.Metric.Value
-    temperaturaEnRawson = bodyRawson[0].Temperature.Metric.Value
-    temperaturaEnPosadas = bodyPosadas[0].Temperature.Metric.Value
+  .spread(function(argentinaData, brasilData, mysteriousData, paraguayData) {
 		let endTime = new Date().getTime()
-    console.log("Temperaturas")
-    console.log("   Buenos Aires: " + temperaturaEnBuenosAires)
-    console.log("   Rawson: " + temperaturaEnRawson)
-    console.log("   Posadas: " + temperaturaEnPosadas)
+    console.log('')
+    console.log('Using promise.all')
+    console.log('-----------------')
+    logCountryData(argentinaData)
+    logCountryData(brasilData)
+    logCountryData(paraguayData)
     console.log("tiempo: " + (endTime - startTime))
   })
   .catch(function(someError) {
@@ -91,27 +92,45 @@ function threeCallsWithPromiseAll() {
 
 function requestAsPromise(theUri) {
   return new Promise(function(fulfill,reject) {
-    if (theUri == nonExistentWeather) {
+    if (theUri == mysteriousQuery) {
       fulfill(4)
     }
-  	setTimeout(function() {
-	    request.get(
-	      {uri: theUri, json: true}, 
-	      function(theError,response,body) {
-	        if (theError) {
-	          reject(theError)
-	        } else if (response.statusCode != 200) {
-	          reject('status = ' + response.statusCode)
-	        } else {
-	          fulfill(body)
-	        }
-	      })  
-		}, 1000)
-  })
+    request.get(
+      {uri: theUri, json: true}, 
+      function(theError,response,body) {
+        if (theError) {
+          reject(theError)
+        } else if (response.statusCode != 200) {
+          reject('status = ' + response.statusCode)
+        } else {
+          fulfill(body)
+        }
+      })  
+	}, 1000)
 }
 
 
-function accUri(cityNumber) {
-	return 'http://apidev.accuweather.com/currentconditions/v1/' + cityNumber + '.json?language=en&apikey=hoArfRosT1215'
+function buildUri(countryCode) {
+  return 'https://restcountries.eu/rest/v2/alpha/' + countryCode
 }
 
+
+function logCountryData(countryData) {
+  let countryName = null
+  let population = null
+  let currencyCode = null
+  let cantidadDeLimites = null
+  let prefijo = null
+  if (countryData) {  
+    countryName = countryData.translations.es
+    population = countryData.population
+    currencyCode = countryData.currencies[0].code
+    cantidadDeLimites = countryData.borders.length
+    prefijo = countryData.callingCodes[0]
+  }
+  console.log('Datos de ' + countryName)
+  console.log('    Población: ' + population + 
+    '  - código de la moneda: ' + currencyCode + '  - prefijo telefónico: ' + prefijo + 
+    '  - limita con ' + cantidadDeLimites + ' países')
+  console.log('')
+}
